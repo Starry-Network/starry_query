@@ -1,0 +1,35 @@
+type starterEntity @entity {
+
+  id: ID! #id is a required field
+
+  field1: Int!
+
+  field2: String #filed2 is an optional field
+
+  field3: BigInt
+
+  field4: Date
+
+  field5: Boolean
+}
+
+type collection @entity {
+  id: ID! #
+  owner: String
+  url: String
+  isFungible: Boolean
+  totalSupply: BigInt
+}
+
+type addressCollectionBalance @entity {
+  id: ID! #collection_id + address
+  balance: BigInt
+}
+
+type nft @entity {
+  id: ID!
+  collectionId: ID
+  endIdx: BigInt
+  owner: String
+  uri: String
+}

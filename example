@@ -1,0 +1,39 @@
+{
+  query {
+    collections(first: 5) {
+      nodes {
+        id
+        totalSupply
+        url
+        owner
+      }
+    }
+    addressCollectionBalances(last: 5) {
+      nodes {
+        # id
+        balance
+      }
+    }
+    nfts(last: 5) {
+      nodes {
+        id
+        collectionId
+        owner
+        uri
+        endIdx
+      }
+    }
+  }
+}
+
+
+{
+  query {
+    addressCollectionBalances(last: 5, filter: {balance: {greaterThan: "10"}}) {
+      nodes {
+        id
+        balance
+      }
+    }
+  }
+}

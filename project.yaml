@@ -1,0 +1,86 @@
+specVersion: 0.0.1
+description: query for starry
+repository: https://github.com/poria-cat/starry_query.git
+schema: ./schema.graphql
+network:
+  endpoint: ws://172.17.0.1:9944
+  types:
+    {
+      "TokenType": { "_enum": ["NonFungible", "Fungible"] },
+      "CollectionInfo":
+        {
+          "owner": "AccountId",
+          "uri": "Vec<u8>",
+          "total_supply": "u128",
+          "token_type": "TokenType",
+        },
+      "TokenInfo":
+        { "end_idx": "u128", "owner": "AccountId", "uri": "Vec<u8>" },
+      "DAOInfo":
+        {
+          "account_id": "AccountId",
+          "escrow_id": "AccountId",
+          "details": "Vec<u8>",
+          "period_duration": "u128",
+          "voting_period": "u128",
+          "grace_period": "u128",
+          "metadata": "Vec<u8>",
+          "total_shares": "u128",
+          "summoning_time": "BlockNumber",
+          "dilution_bound": "u128",
+          "proposal_deposit": "Balance",
+          "processing_reward": "Balance",
+        },
+      "Member": { "shares": "u128", "highest_index_yes_vote": "u128" },
+    }
+dataSources:
+  - name: main
+    kind: substrate/Runtime
+    startBlock: 0
+    mapping:
+      handlers:
+        - handler: handleBlock
+          kind: substrate/BlockHandler
+        - handler: handleEvent
+          kind: substrate/EventHandler
+          filter:
+            module: balances
+            method: Deposit
+        - handler: handleCall
+          kind: substrate/CallHandler
+        - handler: handleCollectionCreated
+          kind: substrate/EventHandler
+          filter:
+            module: collectionModule
+            method: CollectionCreated
+        - handler: handlerNFTMint
+          kind: substrate/CallHandler
+          filter:
+            module: nftModule
+            method: mintNonFungible
+            success: true
+        - handler: handlerFTMint
+          kind: substrate/EventHandler
+          filter:
+            module: nftModule
+            method: FungibleTokenMinted
+        - handler: handlerNFTTransferred
+          kind: substrate/EventHandler
+          filter:
+            module: nftModule
+            method: NonFungibleTokenTransferred
+        - handler: handlerFTTransferred
+          kind: substrate/EventHandler
+          filter:
+            module: nftModule
+            method: FungibleTokenTransferred
+        - handler: handlerNFTBurned
+          kind: substrate/EventHandler
+          filter:
+            module: nftModule
+            method: NonFungibleTokenBurned
+        - handler: handlerFTBurned
+          kind: substrate/EventHandler
+          filter:
+            module: nftModule
+            method: FungibleTokenBurned
