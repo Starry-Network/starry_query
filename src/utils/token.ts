@@ -75,6 +75,8 @@ export async function NFTTransferred(receiver, collection_id, start_idx, amount)
     await senderBalanceRecord.save();
     await receiverBalanceRecord.save();
 
+    const collectionRecord = await collection.get(collection_id.toString());
+
     if (receiver_end_idx !== nftRecord.endIdx) {
         const newNftStartIdx = receiver_end_idx + BigInt(1);
         const newNftId = `${collection_id.toString()}-${newNftStartIdx.toString}`
@@ -86,6 +88,12 @@ export async function NFTTransferred(receiver, collection_id, start_idx, amount)
             record.endIdx = nftRecord.endIdx;
             record.owner = nftRecord.owner;
             record.uri = nftRecord.uri;
+
+            if (collectionRecord.isSub) {
+                record.isSub = true;
+            } else {
+                record.isSub = false;
+            }
 
             await record.save();
         }
