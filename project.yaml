@@ -49,10 +49,11 @@ dataSources:
         - handler: handleCall
           kind: substrate/CallHandler
         - handler: handleCollectionCreated
-          kind: substrate/EventHandler
+          kind: substrate/CallHandler
           filter:
             module: collectionModule
-            method: CollectionCreated
+            method: createCollection
+            success: true
         - handler: handlerNFTMint
           kind: substrate/CallHandler
           filter:
@@ -65,10 +66,13 @@ dataSources:
             module: nftModule
             method: FungibleTokenMinted
         - handler: handlerNFTTransferred
-          kind: substrate/EventHandler
+          # kind: substrate/EventHandler
+          kind: substrate/CallHandler
           filter:
             module: nftModule
-            method: NonFungibleTokenTransferred
+            # method: NonFungibleTokenTransferred
+            method: transfer_non_fungible
+            success: true
         - handler: handlerFTTransferred
           kind: substrate/EventHandler
           filter:
@@ -84,3 +88,8 @@ dataSources:
           filter:
             module: nftModule
             method: FungibleTokenBurned
+        - handler: handlerSubCreate
+          kind: substrate/EventHandler
+          filter:
+            module: subModule
+            method: SubCollectionCreated

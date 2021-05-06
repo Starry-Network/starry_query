@@ -19,6 +19,7 @@ type collection @entity {
   url: String
   isFungible: Boolean
   totalSupply: BigInt
+  isSub: Boolean
 }
 
 type addressCollectionBalance @entity {
@@ -32,4 +33,7 @@ type nft @entity {
   endIdx: BigInt
   owner: String
   uri: String
+  locked: Boolean
+  isSub: Boolean
+  splitedFrom: String
 }

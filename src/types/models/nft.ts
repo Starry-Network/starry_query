@@ -22,6 +22,12 @@ export class nft implements Entity {
 
     public uri?: string;
 
+    public locked?: boolean;
+
+    public isSub?: boolean;
+
+    public splitedFrom?: string;
+
 
     async save(): Promise<void>{
         let id = this.id;

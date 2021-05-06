@@ -3,24 +3,19 @@ import { collection } from '../types/models/collection';
 import { nft } from '../types/models/nft';
 import { addressCollectionBalance } from '../types/models/addressCollectionBalance';
 
-async function ensureAddressBalance(id: string): Promise<void> {
-    const addressBalance = await addressCollectionBalance.get(id);
-    if (!addressBalance) {
-        let record = new addressCollectionBalance(id);
-        record.balance = BigInt(0);
-        await record.save();
-    }
-}
+import {ensureAddressBalance, NFTTransferred} from '../utils/token'
 
-export async function handleCollectionCreated(event: SubstrateEvent): Promise<void> {
-    const { event: { data: [owner, collectionId] } } = event;
-    const { extrinsic: { method: { args: [url, is_fungible] } } } = event.extrinsic;
+export async function handleCollectionCreated(extrinsic: SubstrateExtrinsic): Promise<void> {
+    const createEvent = extrinsic.events.find(e => e.event.section === 'collectionModule' && e.event.method === 'CollectionCreated');
+    const { event: { data: [owner, collectionId] } } = createEvent;
+    const { extrinsic: { method: { args: [url, is_fungible] } } } = extrinsic;
 
     let record = new collection(collectionId.toString());
     record.owner = owner.toString();
     record.totalSupply = BigInt(0);
     record.isFungible = Boolean(is_fungible);
     record.url = url.toString();
+    record.isSub = false;
     await record.save();
 }
 
@@ -28,7 +23,6 @@ export async function handlerNFTMint(extrinsic: SubstrateExtrinsic): Promise<voi
     const mintEvent = extrinsic.events.find(e => e.event.section === 'nftModule' && e.event.method === 'NonFungibleTokenMinted');
     const { event: { data: [, start_idx, end_idx] } } = mintEvent;
     const { extrinsic: { method: { args: [receiver, collection_id, uri, amount] } } } = extrinsic;
-
 
     const nftId = `${collection_id.toString()}-${start_idx.toString()}`
     const record = new nft(nftId);
@@ -40,6 +34,14 @@ export async function handlerNFTMint(extrinsic: SubstrateExtrinsic): Promise<voi
 
     const collectionRecord = await collection.get(collection_id.toString());
     collectionRecord.totalSupply = collectionRecord.totalSupply + BigInt(amount);
+
+    const isSubCollection = collectionRecord.isSub;
+    if (isSubCollection) {
+        record.isSub = true;
+    } else {
+        record.isSub = false;
+    }
+    // isSub
 
     await ensureAddressBalance(`${collection_id.toString()}-${receiver.toString()}`)
 
@@ -67,50 +69,12 @@ export async function handlerFTMint(event: SubstrateEvent): Promise<void> {
     await collectionRecord.save();
 }
 
-export async function handlerNFTTransferred(event: SubstrateEvent): Promise<void> {
-    const { event: { data: [receiver, collection_id] } } = event;
-    const { extrinsic: { method: { args: [, , start_idx, amount] } } } = event.extrinsic;
+export async function handlerNFTTransferred(extrinsic: SubstrateExtrinsic): Promise<void> {
+    const transferEvent = extrinsic.events.find(e => e.event.section === 'nftModule' && e.event.method === 'NonFungibleTokenTransferred');
+    const { event: { data: [receiver, collection_id] } } = transferEvent;
+    const { extrinsic: { method: { args: [, , start_idx, amount] } } } = extrinsic;
 
-    const oldNftId = `${collection_id.toString()}-${start_idx.toString()}`;
-    const nftRecord = await nft.get(oldNftId);
-    const receiver_end_idx = BigInt(start_idx) + BigInt(amount) - BigInt(1);
-
-    const senderId = `${collection_id.toString()}-${nftRecord.owner.toString()}`;
-    const receiverId = `${collection_id.toString()}-${receiver.toString()}`
-
-    await ensureAddressBalance(senderId);
-    await ensureAddressBalance(receiverId);
-
-    const senderBalanceRecord = await addressCollectionBalance.get(senderId);
-    senderBalanceRecord.balance = senderBalanceRecord.balance - BigInt(amount);
-
-    const receiverBalanceRecord = await addressCollectionBalance.get(receiverId);
-    receiverBalanceRecord.balance = receiverBalanceRecord.balance + BigInt(amount);
-
-    await senderBalanceRecord.save();
-    await receiverBalanceRecord.save();
-
-    if (receiver_end_idx !== nftRecord.endIdx) {
-        const newNftStartIdx = receiver_end_idx + BigInt(1);
-        const newNftId = `${collection_id.toString()}-${newNftStartIdx.toString}`
-        const newNft = await nft.get(newNftId);
-        if (!newNft) {
-            let record = new nft(newNftId);
-
-            record.collectionId = nftRecord.collectionId;
-            record.endIdx = nftRecord.endIdx;
-            record.owner = nftRecord.owner;
-            record.uri = nftRecord.uri;
-
-            await record.save();
-        }
-    }
-
-
-    nftRecord.endIdx = receiver_end_idx;
-    nftRecord.owner = receiver.toString();
-
-    await nftRecord.save();
+    await NFTTransferred(receiver, collection_id, start_idx, amount);
 }
 
 export async function handlerFTTransferred(event: SubstrateEvent): Promise<void> {

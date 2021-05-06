@@ -22,6 +22,8 @@ export class collection implements Entity {
 
     public totalSupply?: bigint;
 
+    public isSub?: boolean;
+
 
     async save(): Promise<void>{
         let id = this.id;
