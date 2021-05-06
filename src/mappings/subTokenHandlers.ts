@@ -2,7 +2,7 @@
 import { SubstrateExtrinsic, SubstrateEvent } from "@subql/types";
 import { collection } from '../types/models/collection';
 import { nft } from '../types/models/nft';
-import {NFTTransferred} from '../utils/token'
+import { NFTTransferred, NFTMint, FTMint } from '../utils/token'
 
 export async function handlerSubCreate(event: SubstrateEvent): Promise<void> {
     const { event: { data: [sub_token_collection_id] } } = event;
@@ -29,3 +29,23 @@ export async function handlerSubCreate(event: SubstrateEvent): Promise<void> {
 }
 
 
+export async function handlerSubNFTMint(event: SubstrateEvent): Promise<void> {
+    const { event: { data: [, start_idx, end_idx] } } = event;
+    const { extrinsic: { method: { args: [receiver, sub_collection_id, uri, amount] } } } = event.extrinsic;
+
+    await NFTMint(start_idx, end_idx, receiver, sub_collection_id, uri, amount);
+}
+
+export async function handlerSubFTMint(event: SubstrateEvent): Promise<void> {
+    const { extrinsic: { method: { args: [receiver, collection_id, amount] } } } = event.extrinsic;
+
+    await FTMint(receiver, collection_id, amount)
+}
+
+export async function handleSubRecover(event: SubstrateEvent): Promise<void> {
+    const { event: { data: [collection_id, start_idx] } } = event;
+    const { extrinsic: { method: { args: [sub_token_collection_id] } } } = event.extrinsic;
+
+    await collection.remove(sub_token_collection_id.toString());
+    await NFTTransferred(event.extrinsic.extrinsic.signer.toString(), collection_id, start_idx, 1);
+}

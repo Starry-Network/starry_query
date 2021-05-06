@@ -66,13 +66,10 @@ dataSources:
             module: nftModule
             method: FungibleTokenMinted
         - handler: handlerNFTTransferred
-          # kind: substrate/EventHandler
-          kind: substrate/CallHandler
+          kind: substrate/EventHandler
           filter:
             module: nftModule
-            # method: NonFungibleTokenTransferred
-            method: transfer_non_fungible
-            success: true
+            method: NonFungibleTokenTransferred
         - handler: handlerFTTransferred
           kind: substrate/EventHandler
           filter:
@@ -93,3 +90,18 @@ dataSources:
           filter:
             module: subModule
             method: SubCollectionCreated
+        - handler: handlerSubNFTMint
+          kind: substrate/EventHandler
+          filter:
+            module: subModule
+            method: SubNonFungibleTokenMinted
+        - handler: handlerSubFTMint
+          kind: substrate/EventHandler
+          filter:
+            module: subModule
+            method: SubFungibleTokenMinted   
+        - handler: handleSubRecover
+          kind: substrate/EventHandler
+          filter:
+            module: subModule
+            method: TokenRecovered    

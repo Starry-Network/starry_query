@@ -11,7 +11,51 @@ export async function ensureAddressBalance(id: string): Promise<void> {
     }
 }
 
-export async function NFTTransferred(receiver, collection_id, start_idx, amount) {
+export async function NFTMint(start_idx, end_idx, receiver, collection_id, uri, amount): Promise<void> {
+
+    const nftId = `${collection_id.toString()}-${start_idx.toString()}`
+    const record = new nft(nftId);
+
+    record.collectionId = collection_id.toString();
+    record.endIdx = BigInt(end_idx);
+    record.owner = receiver.toString();
+    record.uri = Buffer.from(uri.toString().slice(2), "hex").toString();
+
+    const collectionRecord = await collection.get(collection_id.toString());
+    collectionRecord.totalSupply = collectionRecord.totalSupply + BigInt(amount);
+
+    const isSubCollection = collectionRecord.isSub;
+    if (isSubCollection) {
+        record.isSub = true;
+    } else {
+        record.isSub = false;
+    }
+    // isSub
+
+    await ensureAddressBalance(`${collection_id.toString()}-${receiver.toString()}`)
+
+    const addressBalanceRecord = await addressCollectionBalance.get(`${collection_id.toString()}-${receiver.toString()}`);
+    addressBalanceRecord.balance = addressBalanceRecord.balance + BigInt(amount);
+
+    await addressBalanceRecord.save();
+    await collectionRecord.save();
+    await record.save();
+}
+
+export async function FTMint(receiver, collection_id, amount): Promise<void> {
+    const collectionRecord = await collection.get(collection_id.toString());
+    collectionRecord.totalSupply = collectionRecord.totalSupply + BigInt(amount);
+
+    await ensureAddressBalance(`${collection_id.toString()}-${receiver.toString()}`)
+
+    const addressBalanceRecord = await addressCollectionBalance.get(`${collection_id.toString()}-${receiver.toString()}`);
+    addressBalanceRecord.balance = addressBalanceRecord.balance + BigInt(amount);
+
+    await addressBalanceRecord.save();
+    await collectionRecord.save();
+}
+
+export async function NFTTransferred(receiver, collection_id, start_idx, amount): Promise<void> {
     const oldNftId = `${collection_id.toString()}-${start_idx.toString()}`;
     const nftRecord = await nft.get(oldNftId);
     const receiver_end_idx = BigInt(start_idx) + BigInt(amount) - BigInt(1);
