@@ -105,3 +105,19 @@ dataSources:
           filter:
             module: subModule
             method: TokenRecovered    
+        - handler: handleSellNFT
+          kind: substrate/EventHandler
+          filter:
+            module: exchangeModule
+            method: NonFungibleOrderCreated
+        - handler: handleBuyNFT
+          kind: substrate/EventHandler
+          filter:
+            module: exchangeModule
+            method: NonFungibleSold
+        - handler: handleCancelNFTOrder
+          kind: substrate/EventHandler
+          filter:
+            module: exchangeModule
+            method: NonFungibleOrderCanceled
+

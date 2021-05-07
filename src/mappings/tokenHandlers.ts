@@ -89,7 +89,6 @@ export async function handlerNFTBurned(event: SubstrateEvent): Promise<void> {
         if (!newNft) {
             let record = new nft(newNftId);
 
-            record.collectionId = nftRecord.collectionId;
             record.endIdx = nftRecord.endIdx;
             record.owner = nftRecord.owner;
             record.uri = nftRecord.uri;

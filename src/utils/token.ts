@@ -16,7 +16,6 @@ export async function NFTMint(start_idx, end_idx, receiver, collection_id, uri, 
     const nftId = `${collection_id.toString()}-${start_idx.toString()}`
     const record = new nft(nftId);
 
-    record.collectionId = collection_id.toString();
     record.endIdx = BigInt(end_idx);
     record.owner = receiver.toString();
     record.uri = Buffer.from(uri.toString().slice(2), "hex").toString();
@@ -84,7 +83,6 @@ export async function NFTTransferred(receiver, collection_id, start_idx, amount)
         if (!newNft) {
             let record = new nft(newNftId);
 
-            record.collectionId = nftRecord.collectionId;
             record.endIdx = nftRecord.endIdx;
             record.owner = nftRecord.owner;
             record.uri = nftRecord.uri;
