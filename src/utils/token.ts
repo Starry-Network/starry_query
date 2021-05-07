@@ -78,7 +78,7 @@ export async function NFTTransferred(receiver, collection_id, start_idx, amount)
 
     if (receiver_end_idx !== nftRecord.endIdx) {
         const newNftStartIdx = receiver_end_idx + BigInt(1);
-        const newNftId = `${collection_id.toString()}-${newNftStartIdx.toString}`
+        const newNftId = `${collection_id.toString()}-${newNftStartIdx.toString()}`
         const newNft = await nft.get(newNftId);
         if (!newNft) {
             let record = new nft(newNftId);
