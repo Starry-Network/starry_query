@@ -23,7 +23,7 @@ export async function handlerSubCreate(event: SubstrateEvent): Promise<void> {
     record.isFungible = Boolean(is_fungible);
     record.url = collectionRecord.url;
     record.isSub = true;
-
+    record.splitedFromId = nftId;
     await nftRecord.save();
     await record.save();
 }

@@ -17,6 +17,7 @@ type collection @entity {
   isFungible: Boolean
   totalSupply: BigInt
   isSub: Boolean
+  splitedFrom: nft
 }
 
 type addressCollectionBalance @entity {
