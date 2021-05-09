@@ -18,7 +18,7 @@ export async function handlerSubCreate(event: SubstrateEvent): Promise<void> {
 
     let collectionRecord = await collection.get(collection_id.toString());
     const record = await new collection(sub_token_collection_id.toString());
-    record.owner = nftRecord.owner;
+    record.owner = event.extrinsic.extrinsic.signer.toString();
     record.totalSupply = BigInt(0);
     record.isFungible = Boolean(is_fungible);
     record.url = collectionRecord.url;
