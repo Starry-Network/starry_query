@@ -120,4 +120,44 @@ dataSources:
           filter:
             module: exchangeModule
             method: NonFungibleOrderCanceled
+        - handler: handleDAOCreated
+          kind: substrate/EventHandler
+          filter:
+            module: nftdaoModule
+            method: DAOCreated
+        - handler: handleProposalSubmitted
+          kind: substrate/EventHandler
+          filter:
+            module: nftdaoModule
+            method: ProposalSubmitted
+        - handler: handleProposalCanceled
+          kind: substrate/EventHandler
+          filter:
+            module: nftdaoModule
+            method: ProposalCanceled
+        - handler: handleProposalSponsored
+          kind: substrate/EventHandler
+          filter:
+            module: nftdaoModule
+            method: ProposalSponsored
+        - handler: handleProposalVoted
+          kind: substrate/EventHandler
+          filter:
+            module: nftdaoModule
+            method: ProposalVoted
+        - handler: handleProposalExecuted
+          kind: substrate/EventHandler
+          filter:
+            module: nftdaoModule
+            method: ProposalExecuted 
+        - handler: handleProposalProcessed
+          kind: substrate/EventHandler
+          filter:
+            module: nftdaoModule
+            method: ProposalProcessed
+        - handler: handleMemberRagequited
+          kind: substrate/EventHandler
+          filter:
+            module: nftdaoModule
+            method: MemberRagequited
 

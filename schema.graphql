@@ -42,3 +42,52 @@ type order @entity {
   amount: BigInt
   price: BigInt
 }
+
+type dao @entity {
+  id: ID!
+  summoner: String
+  escrowId: String
+  periodDuration: Int
+  votingPeriod: Int
+  gracePeriod: Int
+  metadata: String
+  totalShares: BigInt
+  summoningTime: BigInt
+  dilutionBound: Int
+  proposalDeposit: BigInt
+  processingReward: BigInt
+}
+
+type proposal @entity {
+  id: ID!
+  index: BigInt
+  applicant: String
+  proposer: String
+  sponsor: String
+  sharesRequested: BigInt
+  tributeOffered: BigInt
+  # tributeNft: nft
+  tributeNftId: String
+  startingPeriod: BigInt
+  yesVotes: BigInt
+  noVotes: BigInt
+  details: String
+  action: String
+  sponsored: Boolean
+  processed: Boolean
+  didPass: Boolean
+  cancelled: Boolean
+  executed: Boolean
+}
+
+type vote @entity {
+    id: ID! # (dao_id)-(proposal_id)-(voter_account)
+    yes: Boolean
+    shares: BigInt
+    date: Date
+}
+
+type member @entity {
+  id: ID! # (dao_id)-(member_account)
+  shares: BigInt
+}
