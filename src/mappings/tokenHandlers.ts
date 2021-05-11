@@ -1,20 +1,21 @@
 import { SubstrateExtrinsic, SubstrateEvent } from "@subql/types";
+import { hexToString } from '../utils/utils';
 import { Collection } from '../types/models/Collection';
 import { Nft } from '../types/models/Nft';
 import { AddressCollectionBalance } from '../types/models/AddressCollectionBalance';
 
-import { ensureAddressBalance, NFTTransferred, NFTMint, FTMint } from '../utils/token'
+import { ensureAddressBalance, NFTTransferred, NFTMint, FTMint } from '../utils/token';
 
 export async function handleCollectionCreated(extrinsic: SubstrateExtrinsic): Promise<void> {
     const createEvent = extrinsic.events.find(e => e.event.section === 'collectionModule' && e.event.method === 'CollectionCreated');
     const { event: { data: [owner, collectionId] } } = createEvent;
-    const { extrinsic: { method: { args: [url, is_fungible] } } } = extrinsic;
+    const { extrinsic: { method: { args: [uri, is_fungible] } } } = extrinsic;
 
     let record = new Collection(collectionId.toString());
     record.owner = owner.toString();
     record.totalSupply = BigInt(0);
     record.isFungible = Boolean(is_fungible);
-    record.url = url.toString();
+    record.uri = hexToString(uri.toString());
     record.isSub = false;
     await record.save();
 }

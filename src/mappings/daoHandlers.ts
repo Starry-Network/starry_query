@@ -3,6 +3,7 @@ import { Proposal } from '../types/models/Proposal';
 import { Dao } from '../types/models/Dao';
 import { Vote } from '../types/models/Vote'
 import { Member } from '../types/models/Member';
+import { hexToString } from '../utils/utils';
 
 
 import { NFTTransferred, NFTMint, FTMint } from '../utils/token';
@@ -19,7 +20,7 @@ export async function handleDAOCreated(event: SubstrateEvent): Promise<void> {
     daoRecord.periodDuration = Number(period_duration);
     daoRecord.votingPeriod = Number(voting_period);
     daoRecord.gracePeriod = Number(grace_period);
-    daoRecord.metadata = metadata.toString();
+    daoRecord.metadata = hexToString(metadata.toString());
     daoRecord.totalShares = BigInt(shares_requested);
     daoRecord.summoningTime = blockNumber.toBigInt();
     daoRecord.dilutionBound = Number(dilution_bound);
@@ -35,7 +36,6 @@ export async function handleDAOCreated(event: SubstrateEvent): Promise<void> {
         memberRecord.daoId = dao_account.toString();
         await memberRecord.save();
     }
-
 }
 
 export async function handleProposalSubmitted(event: SubstrateEvent): Promise<void> {
@@ -55,6 +55,7 @@ export async function handleProposalSubmitted(event: SubstrateEvent): Promise<vo
     const proposalId = `${dao_account.toString()}-${proposal_id.toString()}`;
     const proposalRecord = new Proposal(proposalId);
 
+    proposalRecord.daoId = dao_account.toString();
     proposalRecord.applicant = applicant.toString();
     proposalRecord.proposer = event.extrinsic.extrinsic.signer.toString();
     proposalRecord.sharesRequested = BigInt(shares_requested);
@@ -121,6 +122,7 @@ export async function handleProposalVoted(event: SubstrateEvent): Promise<void> 
 
     const voteId = `${dao_account.toString()}-${proposal_id.toString()}-${event.extrinsic.extrinsic.signer.toString()}`;
     const voteRecord = new Vote(voteId);
+    voteRecord.proposalId = proposalId;
     voteRecord.date = event.block.timestamp;
     voteRecord.shares = BigInt(member_shares);
     voteRecord.yes = Boolean(yes);

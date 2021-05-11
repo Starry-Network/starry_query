@@ -1,6 +1,7 @@
 import { Collection } from '../types/models/Collection';
 import { Nft } from '../types/models/Nft';
 import { AddressCollectionBalance } from '../types/models/AddressCollectionBalance';
+import { hexToString } from '../utils/utils';
 
 export async function ensureAddressBalance(id: string): Promise<void> {
     const addressBalance = await AddressCollectionBalance.get(id);
@@ -18,7 +19,7 @@ export async function NFTMint(start_idx, end_idx, receiver, collection_id, uri, 
 
     record.endIdx = BigInt(end_idx);
     record.owner = receiver.toString();
-    record.uri = Buffer.from(uri.toString().slice(2), "hex").toString();
+    record.uri = hexToString(uri.toString());
 
     const collectionRecord = await Collection.get(collection_id.toString());
     collectionRecord.totalSupply = collectionRecord.totalSupply + BigInt(amount);

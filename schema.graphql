@@ -13,7 +13,7 @@ type StarterEntity @entity {
 type Collection @entity {
   id: ID! #
   owner: String
-  url: String
+  uri: String
   isFungible: Boolean
   totalSupply: BigInt
   isSub: Boolean
@@ -57,10 +57,13 @@ type Dao @entity {
   proposalDeposit: BigInt
   processingReward: BigInt
   members: [Member] @derivedFrom(field: "dao")
+  proposals: [Proposal] @derivedFrom(field: "dao")
+  votes: [Vote] @derivedFrom(field: "proposal")
 }
 
 type Proposal @entity {
   id: ID!
+  dao: Dao!
   index: BigInt
   applicant: String
   proposer: String
@@ -83,6 +86,7 @@ type Proposal @entity {
 
 type Vote @entity {
     id: ID! # (dao_id)-(proposal_id)-(voter_account)
+    proposal: Proposal!
     yes: Boolean
     shares: BigInt
     date: Date

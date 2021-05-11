@@ -21,7 +21,7 @@ export async function handlerSubCreate(event: SubstrateEvent): Promise<void> {
     record.owner = event.extrinsic.extrinsic.signer.toString();
     record.totalSupply = BigInt(0);
     record.isFungible = Boolean(is_fungible);
-    record.url = collectionRecord.url;
+    record.uri = collectionRecord.uri;
     record.isSub = true;
     record.splitedFromId = nftId;
     await nftRecord.save();
