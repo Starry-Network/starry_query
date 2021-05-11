@@ -25,6 +25,13 @@ export async function handleDAOCreated(event: SubstrateEvent): Promise<void> {
     daoRecord.proposalDeposit = BigInt(proposal_deposit);
     daoRecord.processingReward = BigInt(processing_reward);
 
+    if (daoRecord.totalShares !== BigInt(0)) {
+        const memberId = `${dao_account.toString()}-${event.extrinsic.extrinsic.signer.toString()}`;
+        const memberRecord = new member(memberId);
+        memberRecord.shares = daoRecord.totalShares
+        await memberRecord.save();
+    }
+   
     await daoRecord.save()
 }
 
