@@ -62,7 +62,7 @@ export async function handleProposalSubmitted(event: SubstrateEvent): Promise<vo
     proposalRecord.tributeOffered = BigInt(tribute_offered);
     proposalRecord.tributeNftId = tributeNftId;
     proposalRecord.startingPeriod = BigInt(0);
-    proposalRecord.details = details.toString();
+    proposalRecord.details = hexToString(details.toString());
     proposalRecord.action = action.toString();
     proposalRecord.sponsored = false;
     proposalRecord.processed = false;
