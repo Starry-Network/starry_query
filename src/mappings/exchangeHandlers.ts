@@ -1,14 +1,12 @@
 import { SubstrateExtrinsic, SubstrateEvent } from "@subql/types";
-import { collection } from '../types/models/collection';
-import { nft } from '../types/models/nft';
-import { order } from '../types/models/order';
+import { Order } from '../types/models/Order';
 import { NFTTransferred, NFTMint, FTMint } from '../utils/token';
 
 export async function handleSellNFT(event: SubstrateEvent): Promise<void> {
     const { event: { data: [order_id] } } = event;
     const { extrinsic: { method: { args: [collection_id, token_id, amount, price] } } } = event.extrinsic;
 
-    const orderRecord = new order(order_id.toString());
+    const orderRecord = new Order(order_id.toString());
     orderRecord.nftId = `${collection_id.toString()}-${token_id.toString()}`
     orderRecord.price = BigInt(price);
     orderRecord.amount = BigInt(amount);
@@ -25,9 +23,9 @@ export async function handleBuyNFT(event: SubstrateEvent): Promise<void> {
     const { extrinsic: { method: { args: [order_id, amount] } } } = event.extrinsic;
 
     if (BigInt(left_amount) === BigInt(0)) {
-        await order.remove(order_id.toString());
+        await Order.remove(order_id.toString());
     } else {
-        const orderRecord = await order.get(order_id.toString());
+        const orderRecord = await Order.get(order_id.toString());
         const token = orderRecord.nftId.split("-");
         await NFTTransferred(event.extrinsic.extrinsic.signer.toString(), token[0], token[1], amount);
         const startIdx = BigInt(token[1]) + BigInt(amount);
@@ -41,11 +39,11 @@ export async function handleBuyNFT(event: SubstrateEvent): Promise<void> {
 
 export async function handleCancelNFTOrder(event: SubstrateEvent): Promise<void> {
     const { event: { data: [order_id] } } = event;
-    const orderRecord = await order.get(order_id.toString());
+    const orderRecord = await Order.get(order_id.toString());
     const token = orderRecord.nftId.split("-");
     const collection_id = token[0];
     const token_id = token[1];
     const amount = orderRecord.amount;
     await NFTTransferred(event.extrinsic.extrinsic.signer.toString(), collection_id, token_id, amount);
-    await order.remove(order_id.toString());
+    await Order.remove(order_id.toString());
 }

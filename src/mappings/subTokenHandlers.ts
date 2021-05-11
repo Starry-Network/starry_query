@@ -1,7 +1,7 @@
 // handlerSubCreate
 import { SubstrateExtrinsic, SubstrateEvent } from "@subql/types";
-import { collection } from '../types/models/collection';
-import { nft } from '../types/models/nft';
+import { Collection } from '../types/models/Collection';
+import { Nft } from '../types/models/Nft';
 import { NFTTransferred, NFTMint, FTMint } from '../utils/token'
 
 export async function handlerSubCreate(event: SubstrateEvent): Promise<void> {
@@ -13,11 +13,11 @@ export async function handlerSubCreate(event: SubstrateEvent): Promise<void> {
     await NFTTransferred("5EYCAe5cvWwuASaBGzVg1qYZsaxUYejHQf9rqLHKCEeTfbA8", collection_id, start_idx, 1);
 
     const nftId = `${collection_id.toString()}-${start_idx.toString()}`;
-    const nftRecord = await nft.get(nftId);
+    const nftRecord = await Nft.get(nftId);
     nftRecord.locked = true;
 
-    let collectionRecord = await collection.get(collection_id.toString());
-    const record = await new collection(sub_token_collection_id.toString());
+    let collectionRecord = await Collection.get(collection_id.toString());
+    const record = await new Collection(sub_token_collection_id.toString());
     record.owner = event.extrinsic.extrinsic.signer.toString();
     record.totalSupply = BigInt(0);
     record.isFungible = Boolean(is_fungible);
@@ -46,6 +46,6 @@ export async function handleSubRecover(event: SubstrateEvent): Promise<void> {
     const { event: { data: [collection_id, start_idx] } } = event;
     const { extrinsic: { method: { args: [sub_token_collection_id] } } } = event.extrinsic;
 
-    await collection.remove(sub_token_collection_id.toString());
+    await Collection.remove(sub_token_collection_id.toString());
     await NFTTransferred(event.extrinsic.extrinsic.signer.toString(), collection_id, start_idx, 1);
 }

@@ -1,4 +1,4 @@
-type starterEntity @entity {
+type StarterEntity @entity {
   id: ID! #id is a required field
   field1: Int!
 
@@ -10,22 +10,22 @@ type starterEntity @entity {
   field5: Boolean
 }
 
-type collection @entity {
+type Collection @entity {
   id: ID! #
   owner: String
   url: String
   isFungible: Boolean
   totalSupply: BigInt
   isSub: Boolean
-  splitedFrom: nft
+  splitedFrom: Nft
 }
 
-type addressCollectionBalance @entity {
+type AddressCollectionBalance @entity {
   id: ID! #collection_id + address
   balance: BigInt
 }
 
-type nft @entity {
+type Nft @entity {
   id: ID!
   endIdx: BigInt
   owner: String
@@ -35,15 +35,15 @@ type nft @entity {
   splitedFrom: String
 }
 
-type order @entity {
+type Order @entity {
   id: ID!
-  nft: nft!
+  nft: Nft!
   seller: String
   amount: BigInt
   price: BigInt
 }
 
-type dao @entity {
+type Dao @entity {
   id: ID!
   summoner: String
   escrowId: String
@@ -56,9 +56,10 @@ type dao @entity {
   dilutionBound: Int
   proposalDeposit: BigInt
   processingReward: BigInt
+  members: [Member] @derivedFrom(field: "dao")
 }
 
-type proposal @entity {
+type Proposal @entity {
   id: ID!
   index: BigInt
   applicant: String
@@ -80,14 +81,15 @@ type proposal @entity {
   executed: Boolean
 }
 
-type vote @entity {
+type Vote @entity {
     id: ID! # (dao_id)-(proposal_id)-(voter_account)
     yes: Boolean
     shares: BigInt
     date: Date
 }
 
-type member @entity {
+type Member @entity {
   id: ID! # (dao_id)-(member_account)
   shares: BigInt
+  dao: Dao!
 }

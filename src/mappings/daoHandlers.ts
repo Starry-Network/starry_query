@@ -1,8 +1,9 @@
 import { SubstrateExtrinsic, SubstrateEvent } from "@subql/types";
-import { proposal } from '../types/models/proposal';
-import { dao } from '../types/models/dao';
-import { vote } from '../types/models/vote'
-import { member } from '../types/models/member';
+import { Proposal } from '../types/models/Proposal';
+import { Dao } from '../types/models/Dao';
+import { Vote } from '../types/models/Vote'
+import { Member } from '../types/models/Member';
+
 
 import { NFTTransferred, NFTMint, FTMint } from '../utils/token';
 
@@ -11,7 +12,7 @@ export async function handleDAOCreated(event: SubstrateEvent): Promise<void> {
     const { extrinsic: { method: { args: [metadata, period_duration, voting_period, grace_period, shares_requested, proposal_deposit, processing_reward, dilution_bound] } } } = event.extrinsic;
     const blockNumber = event.extrinsic.block.block.header.number;
 
-    const daoRecord = new dao(dao_account.toString());
+    const daoRecord = new Dao(dao_account.toString());
 
     daoRecord.summoner = summoner_account.toString();
     daoRecord.escrowId = escrow_id.toString();
@@ -25,21 +26,23 @@ export async function handleDAOCreated(event: SubstrateEvent): Promise<void> {
     daoRecord.proposalDeposit = BigInt(proposal_deposit);
     daoRecord.processingReward = BigInt(processing_reward);
 
+    await daoRecord.save()
+
     if (daoRecord.totalShares !== BigInt(0)) {
         const memberId = `${dao_account.toString()}-${event.extrinsic.extrinsic.signer.toString()}`;
-        const memberRecord = new member(memberId);
-        memberRecord.shares = daoRecord.totalShares
+        const memberRecord = new Member(memberId);
+        memberRecord.shares = daoRecord.totalShares;
+        memberRecord.daoId = dao_account.toString();
         await memberRecord.save();
     }
-   
-    await daoRecord.save()
+
 }
 
 export async function handleProposalSubmitted(event: SubstrateEvent): Promise<void> {
     const { event: { data: [proposal_id] } } = event;
     const { extrinsic: { method: { args: [dao_account, applicant, shares_requested, tribute_offered, tribute_nft, details, action] } } } = event.extrinsic;
 
-    let daoRecord = await dao.get(dao_account.toString());
+    let daoRecord = await Dao.get(dao_account.toString());
 
     let tributeNftId = null;
     const tribute_nft_string = tribute_nft.toString();
@@ -50,7 +53,7 @@ export async function handleProposalSubmitted(event: SubstrateEvent): Promise<vo
     }
 
     const proposalId = `${dao_account.toString()}-${proposal_id.toString()}`;
-    const proposalRecord = new proposal(proposalId);
+    const proposalRecord = new Proposal(proposalId);
 
     proposalRecord.applicant = applicant.toString();
     proposalRecord.proposer = event.extrinsic.extrinsic.signer.toString();
@@ -76,7 +79,7 @@ export async function handleProposalCanceled(event: SubstrateEvent): Promise<voi
     const { extrinsic: { method: { args: [dao_account, proposal_id] } } } = event.extrinsic;
     const proposalId = `${dao_account.toString()}-${proposal_id.toString()}`;
 
-    const proposalRecord = await proposal.get(proposalId);
+    const proposalRecord = await Proposal.get(proposalId);
     proposalRecord.cancelled = true;
 
     if (proposalRecord.tributeNftId) {
@@ -92,7 +95,7 @@ export async function handleProposalSponsored(event: SubstrateEvent): Promise<vo
     const { extrinsic: { method: { args: [dao_account, proposal_id] } } } = event.extrinsic;
 
     const proposalId = `${dao_account.toString()}-${proposal_id.toString()}`;
-    const proposalRecord = await proposal.get(proposalId);
+    const proposalRecord = await Proposal.get(proposalId);
 
     proposalRecord.sponsor = event.extrinsic.extrinsic.signer.toString();
     proposalRecord.sponsored = true;
@@ -108,7 +111,7 @@ export async function handleProposalVoted(event: SubstrateEvent): Promise<void> 
     const { extrinsic: { method: { args: [dao_account, proposal_index] } } } = event.extrinsic;
 
     const proposalId = `${dao_account.toString()}-${proposal_id.toString()}`;
-    const proposalRecord = await proposal.get(proposalId);
+    const proposalRecord = await Proposal.get(proposalId);
 
     if (Boolean(yes)) {
         proposalRecord.yesVotes = proposalRecord.yesVotes + BigInt(member_shares);
@@ -117,7 +120,7 @@ export async function handleProposalVoted(event: SubstrateEvent): Promise<void> 
     }
 
     const voteId = `${dao_account.toString()}-${proposal_id.toString()}-${event.extrinsic.extrinsic.signer.toString()}`;
-    const voteRecord = new vote(voteId);
+    const voteRecord = new Vote(voteId);
     voteRecord.date = event.block.timestamp;
     voteRecord.shares = BigInt(member_shares);
     voteRecord.yes = Boolean(yes);
@@ -131,7 +134,7 @@ export async function handleProposalExecuted(event: SubstrateEvent): Promise<voi
     const { extrinsic: { method: { args: [dao_account, proposal_index] } } } = event.extrinsic;
 
     const proposalId = `${dao_account.toString()}-${proposal_id.toString()}`;
-    const proposalRecord = await proposal.get(proposalId);
+    const proposalRecord = await Proposal.get(proposalId);
 
     proposalRecord.executed = Boolean(executed);
 
@@ -143,7 +146,7 @@ export async function handleProposalProcessed(event: SubstrateEvent): Promise<vo
     const { extrinsic: { method: { args: [dao_account, proposal_index] } } } = event.extrinsic;
 
     const proposalId = `${dao_account.toString()}-${proposal_id.toString()}`;
-    const proposalRecord = await proposal.get(proposalId);
+    const proposalRecord = await Proposal.get(proposalId);
 
     proposalRecord.processed = Boolean(did_pass);
 
@@ -152,10 +155,11 @@ export async function handleProposalProcessed(event: SubstrateEvent): Promise<vo
         await NFTTransferred(proposalRecord.proposer, nft[0], nft[1], 1);
     } else if (proposalRecord.sharesRequested > BigInt(0)) {
         const memberId = `${dao_account.toString()}-${proposalRecord.applicant}`;
-        let memberRecord = await member.get(memberId);
+        let memberRecord = await Member.get(memberId);
         if (!memberRecord) {
-            memberRecord = new member(memberId);
+            memberRecord = new Member(memberId);
             memberRecord.shares = proposalRecord.sharesRequested;
+            memberRecord.daoId = dao_account.toString();
             await memberRecord.save();
         } else {
             memberRecord.shares = memberRecord.shares + proposalRecord.sharesRequested;
@@ -171,12 +175,12 @@ export async function handleMemberRagequited(event: SubstrateEvent): Promise<voi
 
     const memberId = `${dao_account.toString()}-${event.extrinsic.extrinsic.signer.toString()}`;
 
-    const memberRecord = await member.get(memberId);
+    const memberRecord = await Member.get(memberId);
     memberRecord.shares = memberRecord.shares - BigInt(shares_to_burn);
     await memberRecord.save();
 
     if (memberRecord.shares === BigInt(0)) {
-        await member.remove(memberId);
+        await Member.remove(memberId);
     }
 }
 

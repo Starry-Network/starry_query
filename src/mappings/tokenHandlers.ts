@@ -1,7 +1,7 @@
 import { SubstrateExtrinsic, SubstrateEvent } from "@subql/types";
-import { collection } from '../types/models/collection';
-import { nft } from '../types/models/nft';
-import { addressCollectionBalance } from '../types/models/addressCollectionBalance';
+import { Collection } from '../types/models/Collection';
+import { Nft } from '../types/models/Nft';
+import { AddressCollectionBalance } from '../types/models/AddressCollectionBalance';
 
 import { ensureAddressBalance, NFTTransferred, NFTMint, FTMint } from '../utils/token'
 
@@ -10,7 +10,7 @@ export async function handleCollectionCreated(extrinsic: SubstrateExtrinsic): Pr
     const { event: { data: [owner, collectionId] } } = createEvent;
     const { extrinsic: { method: { args: [url, is_fungible] } } } = extrinsic;
 
-    let record = new collection(collectionId.toString());
+    let record = new Collection(collectionId.toString());
     record.owner = owner.toString();
     record.totalSupply = BigInt(0);
     record.isFungible = Boolean(is_fungible);
@@ -51,10 +51,10 @@ export async function handlerFTTransferred(event: SubstrateEvent): Promise<void>
     await ensureAddressBalance(senderId);
     await ensureAddressBalance(receiverId);
 
-    const senderBalanceRecord = await addressCollectionBalance.get(senderId);
+    const senderBalanceRecord = await AddressCollectionBalance.get(senderId);
     senderBalanceRecord.balance = senderBalanceRecord.balance - BigInt(amount);
 
-    const receiverBalanceRecord = await addressCollectionBalance.get(receiverId);
+    const receiverBalanceRecord = await AddressCollectionBalance.get(receiverId);
     receiverBalanceRecord.balance = receiverBalanceRecord.balance + BigInt(amount);
 
     await senderBalanceRecord.save();
@@ -66,16 +66,16 @@ export async function handlerNFTBurned(event: SubstrateEvent): Promise<void> {
     const { extrinsic: { method: { args: [, start_idx, amount] } } } = event.extrinsic;
 
     const oldNftId = `${collection_id.toString()}-${start_idx.toString()}`;
-    const nftRecord = await nft.get(oldNftId);
+    const nftRecord = await Nft.get(oldNftId);
     const burned_end_idx = BigInt(start_idx) + BigInt(amount) - BigInt(1);
 
     const burnerId = `${collection_id.toString()}-${burner.toString()}`;
     await ensureAddressBalance(burnerId);
 
-    const burnerBalanceRecord = await addressCollectionBalance.get(burnerId);
+    const burnerBalanceRecord = await AddressCollectionBalance.get(burnerId);
     burnerBalanceRecord.balance = burnerBalanceRecord.balance - BigInt(amount);
 
-    const collectionRecord = await collection.get(collection_id.toString());
+    const collectionRecord = await Collection.get(collection_id.toString());
     collectionRecord.totalSupply = collectionRecord.totalSupply - BigInt(amount);
 
     await burnerBalanceRecord.save();
@@ -85,9 +85,9 @@ export async function handlerNFTBurned(event: SubstrateEvent): Promise<void> {
         const newNftStartIdx = burned_end_idx + BigInt(1);
         const newNftId = `${collection_id.toString()}-${newNftStartIdx.toString()}`
 
-        const newNft = await nft.get(newNftId);
+        const newNft = await Nft.get(newNftId);
         if (!newNft) {
-            let record = new nft(newNftId);
+            let record = new Nft(newNftId);
 
             record.endIdx = nftRecord.endIdx;
             record.owner = nftRecord.owner;
@@ -97,7 +97,7 @@ export async function handlerNFTBurned(event: SubstrateEvent): Promise<void> {
         }
     }
 
-    await nft.remove(oldNftId);
+    await Nft.remove(oldNftId);
 }
 
 export async function handlerFTBurned(event: SubstrateEvent): Promise<void> {
@@ -107,10 +107,10 @@ export async function handlerFTBurned(event: SubstrateEvent): Promise<void> {
     const burnerId = `${collection_id.toString()}-${burner.toString()}`;
     await ensureAddressBalance(burnerId);
 
-    const burnerBalanceRecord = await addressCollectionBalance.get(burnerId);
+    const burnerBalanceRecord = await AddressCollectionBalance.get(burnerId);
     burnerBalanceRecord.balance = burnerBalanceRecord.balance - BigInt(amount);
 
-    const collectionRecord = await collection.get(collection_id.toString());
+    const collectionRecord = await Collection.get(collection_id.toString());
     collectionRecord.totalSupply = collectionRecord.totalSupply - BigInt(amount);
 
     await burnerBalanceRecord.save();
