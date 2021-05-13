@@ -100,7 +100,6 @@ export async function NFTTransferred(receiver, collection_id, start_idx, amount)
         }
     }
 
-
     nftRecord.endIdx = receiver_end_idx;
     nftRecord.owner = receiver.toString();
 

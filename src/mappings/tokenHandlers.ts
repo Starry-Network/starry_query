@@ -93,6 +93,9 @@ export async function handleNFTBurned(event: SubstrateEvent): Promise<void> {
             record.endIdx = nftRecord.endIdx;
             record.owner = nftRecord.owner;
             record.uri = nftRecord.uri;
+            record.isSub = nftRecord.isSub;
+
+            // because linked NFT and brned NFT all is first NFT, so don't add isRoot
 
             await record.save();
         }
