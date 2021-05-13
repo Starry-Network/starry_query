@@ -99,12 +99,12 @@ dataSources:
           kind: substrate/EventHandler
           filter:
             module: subModule
-            method: SubFungibleTokenMinted   
+            method: SubFungibleTokenMinted
         - handler: handleSubRecover
           kind: substrate/EventHandler
           filter:
             module: subModule
-            method: TokenRecovered    
+            method: TokenRecovered
         - handler: handleSellNFT
           kind: substrate/EventHandler
           filter:
@@ -149,7 +149,7 @@ dataSources:
           kind: substrate/EventHandler
           filter:
             module: nftdaoModule
-            method: ProposalExecuted 
+            method: ProposalExecuted
         - handler: handleProposalProcessed
           kind: substrate/EventHandler
           filter:
@@ -160,4 +160,13 @@ dataSources:
           filter:
             module: nftdaoModule
             method: MemberRagequited
-
+        - handler: handleNonFungibleTokenLinked
+          kind: substrate/EventHandler
+          filter:
+            module: graphModule
+            method: handleNonFungibleTokenLinked
+        - handler: handleNonFungibleTokenRecovered
+          kind: substrate/EventHandler
+          filter:
+            module: graphModule
+            method: NonFungibleTokenRecovered

@@ -33,6 +33,11 @@ type Nft @entity {
   locked: Boolean
   isSub: Boolean
   splitedFrom: String
+  root: Nft
+  parent: Nft @index
+  descendants: [Nft] @derivedFrom(field: "root")
+  children: [Nft] @derivedFrom(field: "parent")
+  isRoot: Boolean
 }
 
 type Order @entity {
@@ -85,11 +90,11 @@ type Proposal @entity {
 }
 
 type Vote @entity {
-    id: ID! # (dao_id)-(proposal_id)-(voter_account)
-    proposal: Proposal!
-    yes: Boolean
-    shares: BigInt
-    date: Date
+  id: ID! # (dao_id)-(proposal_id)-(voter_account)
+  proposal: Proposal!
+  yes: Boolean
+  shares: BigInt
+  date: Date
 }
 
 type Member @entity {

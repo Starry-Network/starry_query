@@ -20,6 +20,7 @@ export async function NFTMint(start_idx, end_idx, receiver, collection_id, uri, 
     record.endIdx = BigInt(end_idx);
     record.owner = receiver.toString();
     record.uri = hexToString(uri.toString());
+    record.isRoot = false;
 
     const collectionRecord = await Collection.get(collection_id.toString());
     collectionRecord.totalSupply = collectionRecord.totalSupply + BigInt(amount);
@@ -87,6 +88,7 @@ export async function NFTTransferred(receiver, collection_id, start_idx, amount)
             record.endIdx = nftRecord.endIdx;
             record.owner = nftRecord.owner;
             record.uri = nftRecord.uri;
+            record.isRoot = false;
 
             if (collectionRecord.isSub) {
                 record.isSub = true;
