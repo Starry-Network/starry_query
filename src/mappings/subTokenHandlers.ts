@@ -1,10 +1,10 @@
-// handlerSubCreate
+// handleSubCreate
 import { SubstrateExtrinsic, SubstrateEvent } from "@subql/types";
 import { Collection } from '../types/models/Collection';
 import { Nft } from '../types/models/Nft';
 import { NFTTransferred, NFTMint, FTMint } from '../utils/token'
 
-export async function handlerSubCreate(event: SubstrateEvent): Promise<void> {
+export async function handleSubCreate(event: SubstrateEvent): Promise<void> {
     const { event: { data: [sub_token_collection_id] } } = event;
     const { extrinsic: { method: { args: [collection_id, start_idx, is_fungible] } } } = event.extrinsic;
 
@@ -29,14 +29,14 @@ export async function handlerSubCreate(event: SubstrateEvent): Promise<void> {
 }
 
 
-export async function handlerSubNFTMint(event: SubstrateEvent): Promise<void> {
+export async function handleSubNFTMint(event: SubstrateEvent): Promise<void> {
     const { event: { data: [, start_idx, end_idx] } } = event;
     const { extrinsic: { method: { args: [receiver, sub_collection_id, uri, amount] } } } = event.extrinsic;
 
     await NFTMint(start_idx, end_idx, receiver, sub_collection_id, uri, amount);
 }
 
-export async function handlerSubFTMint(event: SubstrateEvent): Promise<void> {
+export async function handleSubFTMint(event: SubstrateEvent): Promise<void> {
     const { extrinsic: { method: { args: [receiver, collection_id, amount] } } } = event.extrinsic;
 
     await FTMint(receiver, collection_id, amount)

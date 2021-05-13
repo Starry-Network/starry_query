@@ -20,7 +20,7 @@ export async function handleCollectionCreated(extrinsic: SubstrateExtrinsic): Pr
     await record.save();
 }
 
-export async function handlerNFTMint(extrinsic: SubstrateExtrinsic): Promise<void> {
+export async function handleNFTMint(extrinsic: SubstrateExtrinsic): Promise<void> {
     const mintEvent = extrinsic.events.find(e => e.event.section === 'nftModule' && e.event.method === 'NonFungibleTokenMinted');
     const { event: { data: [, start_idx, end_idx] } } = mintEvent;
     const { extrinsic: { method: { args: [receiver, collection_id, uri, amount] } } } = extrinsic;
@@ -28,21 +28,21 @@ export async function handlerNFTMint(extrinsic: SubstrateExtrinsic): Promise<voi
     await NFTMint(start_idx, end_idx, receiver, collection_id, uri, amount);
 }
 
-export async function handlerFTMint(event: SubstrateEvent): Promise<void> {
+export async function handleFTMint(event: SubstrateEvent): Promise<void> {
     // const { event: { data: [_collection_id] } } = event;
     const { extrinsic: { method: { args: [receiver, collection_id, amount] } } } = event.extrinsic;
 
     await FTMint(receiver, collection_id, amount)
 }
 
-export async function handlerNFTTransferred(event: SubstrateEvent): Promise<void> {
+export async function handleNFTTransferred(event: SubstrateEvent): Promise<void> {
     const { event: { data: [receiver, collection_id] } } = event;
     const { extrinsic: { method: { args: [, , start_idx, amount] } } } = event.extrinsic;
 
     await NFTTransferred(receiver, collection_id, start_idx, amount);
 }
 
-export async function handlerFTTransferred(event: SubstrateEvent): Promise<void> {
+export async function handleFTTransferred(event: SubstrateEvent): Promise<void> {
     const { event: { data: [sender,] } } = event;
     const { extrinsic: { method: { args: [receiver, collection_id, amount] } } } = event.extrinsic;
 
@@ -62,7 +62,7 @@ export async function handlerFTTransferred(event: SubstrateEvent): Promise<void>
     await receiverBalanceRecord.save();
 }
 
-export async function handlerNFTBurned(event: SubstrateEvent): Promise<void> {
+export async function handleNFTBurned(event: SubstrateEvent): Promise<void> {
     const { event: { data: [burner, collection_id] } } = event;
     const { extrinsic: { method: { args: [, start_idx, amount] } } } = event.extrinsic;
 
@@ -101,7 +101,7 @@ export async function handlerNFTBurned(event: SubstrateEvent): Promise<void> {
     await Nft.remove(oldNftId);
 }
 
-export async function handlerFTBurned(event: SubstrateEvent): Promise<void> {
+export async function handleFTBurned(event: SubstrateEvent): Promise<void> {
     const { event: { data: [burner, collection_id] } } = event;
     const { extrinsic: { method: { args: [, amount] } } } = event.extrinsic;
 

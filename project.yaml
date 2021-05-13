@@ -54,48 +54,48 @@ dataSources:
             module: collectionModule
             method: createCollection
             success: true
-        - handler: handlerNFTMint
+        - handler: handleNFTMint
           kind: substrate/CallHandler
           filter:
             module: nftModule
             method: mintNonFungible
             success: true
-        - handler: handlerFTMint
+        - handler: handleFTMint
           kind: substrate/EventHandler
           filter:
             module: nftModule
             method: FungibleTokenMinted
-        - handler: handlerNFTTransferred
+        - handler: handleNFTTransferred
           kind: substrate/EventHandler
           filter:
             module: nftModule
             method: NonFungibleTokenTransferred
-        - handler: handlerFTTransferred
+        - handler: handleFTTransferred
           kind: substrate/EventHandler
           filter:
             module: nftModule
             method: FungibleTokenTransferred
-        - handler: handlerNFTBurned
+        - handler: handleNFTBurned
           kind: substrate/EventHandler
           filter:
             module: nftModule
             method: NonFungibleTokenBurned
-        - handler: handlerFTBurned
+        - handler: handleFTBurned
           kind: substrate/EventHandler
           filter:
             module: nftModule
             method: FungibleTokenBurned
-        - handler: handlerSubCreate
+        - handler: handleSubCreate
           kind: substrate/EventHandler
           filter:
             module: subModule
             method: SubCollectionCreated
-        - handler: handlerSubNFTMint
+        - handler: handleSubNFTMint
           kind: substrate/EventHandler
           filter:
             module: subModule
             method: SubNonFungibleTokenMinted
-        - handler: handlerSubFTMint
+        - handler: handleSubFTMint
           kind: substrate/EventHandler
           filter:
             module: subModule
