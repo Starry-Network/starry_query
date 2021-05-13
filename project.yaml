@@ -164,7 +164,7 @@ dataSources:
           kind: substrate/EventHandler
           filter:
             module: graphModule
-            method: handleNonFungibleTokenLinked
+            method: NonFungibleTokenLinked
         - handler: handleNonFungibleTokenRecovered
           kind: substrate/EventHandler
           filter:

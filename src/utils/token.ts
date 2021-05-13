@@ -100,6 +100,11 @@ export async function NFTTransferred(receiver, collection_id, start_idx, amount)
         }
     }
 
+    // why nft.isRoot can be null?
+    if(!!nftRecord.isRoot) {
+        nftRecord.isRoot = false;
+    }
+
     nftRecord.endIdx = receiver_end_idx;
     nftRecord.owner = receiver.toString();
 

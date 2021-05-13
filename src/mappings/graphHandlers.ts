@@ -1,6 +1,6 @@
 import { SubstrateEvent } from "@subql/types";
-
 import { Nft } from '../types/models/Nft';
+
 import { NFTTransferred } from '../utils/token'
 
 export async function handleNonFungibleTokenLinked(event: SubstrateEvent): Promise<void> {
@@ -29,10 +29,12 @@ export async function handleNonFungibleTokenLinked(event: SubstrateEvent): Promi
     const parentNFT = await Nft.get(parentId);
 
     childNFT.parentId = parentId;
+    childNFT.isRoot = false;
 
-    if (parentNFT.rootId) {
+    if (!parentNFT.rootId) {
         childNFT.rootId = parentId;
         parentNFT.isRoot = true;
+        await parentNFT.save();
     } else {
         childNFT.rootId = parentNFT.rootId;
     }
