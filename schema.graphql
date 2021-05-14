@@ -63,7 +63,6 @@ type Dao @entity {
   processingReward: BigInt
   members: [Member] @derivedFrom(field: "dao")
   proposals: [Proposal] @derivedFrom(field: "dao")
-  votes: [Vote] @derivedFrom(field: "proposal")
 }
 
 type Proposal @entity {
@@ -75,7 +74,6 @@ type Proposal @entity {
   sponsor: String
   sharesRequested: BigInt
   tributeOffered: BigInt
-  # tributeNft: nft
   tributeNftId: String
   startingPeriod: BigInt
   yesVotes: BigInt
@@ -87,6 +85,7 @@ type Proposal @entity {
   didPass: Boolean
   cancelled: Boolean
   executed: Boolean
+  votes: [Vote] @derivedFrom(field: "proposal")
 }
 
 type Vote @entity {
