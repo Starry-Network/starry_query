@@ -1,5 +1,6 @@
 import { SubstrateExtrinsic, SubstrateEvent } from "@subql/types";
 import { Order } from '../types/models/Order';
+import { Pool } from '../types/models/Pool';
 import { NFTTransferred, NFTMint, FTMint } from '../utils/token';
 
 export async function handleSellNFT(event: SubstrateEvent): Promise<void> {
@@ -11,7 +12,7 @@ export async function handleSellNFT(event: SubstrateEvent): Promise<void> {
     orderRecord.price = BigInt(price);
     orderRecord.amount = BigInt(amount);
     orderRecord.seller = event.extrinsic.extrinsic.signer.toString();
-    
+
     // exchange_pallet: 5EYCAe5a7x69hFY9TwczDWDhJMHXGirtzHzfYnnmc3WmBTFZ
 
     await NFTTransferred("5EYCAe5a7x69hFY9TwczDWDhJMHXGirtzHzfYnnmc3WmBTFZ", collection_id, token_id, amount);
@@ -46,4 +47,21 @@ export async function handleCancelNFTOrder(event: SubstrateEvent): Promise<void>
     const amount = orderRecord.amount;
     await NFTTransferred(event.extrinsic.extrinsic.signer.toString(), collection_id, token_id, amount);
     await Order.remove(order_id.toString());
+}
+
+export async function handleSemiFungiblePoolCreated(event: SubstrateEvent): Promise<void> {
+    const { event: { data: [_collection_id, end_time] } } = event;
+    const { extrinsic: { method: { args: [collection_id, amount, reverse_ratio, m] } } } = event.extrinsic;
+
+    const pool = new Pool(collection_id.toString());
+
+    pool.supply = BigInt(amount);
+    pool.m = BigInt(m);
+    pool.reverse_ratio = BigInt(reverse_ratio);
+    pool.end_time = BigInt(end_time);
+    pool.sold = BigInt(0);
+    pool.pool_balance = BigInt(0);
+    pool.seller = event.extrinsic.extrinsic.signer.toString();
+
+    await pool.save();
 }

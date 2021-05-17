@@ -48,6 +48,18 @@ type Order @entity {
   price: BigInt
 }
 
+type Pool @entity {
+  id: ID! # collection id
+  seller: String
+  m: BigInt
+  sold: BigInt
+  reverse_ratio: BigInt
+  supply: BigInt
+  pool_balance: BigInt
+  end_time: BigInt
+  price: BigInt
+}
+
 type Dao @entity {
   id: ID!
   summoner: String
