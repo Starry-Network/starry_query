@@ -12,7 +12,7 @@ network:
           "owner": "AccountId",
           "uri": "Vec<u8>",
           "total_supply": "u128",
-          "token_type": "TokenType",
+          "token_type": "Option<TokenType>"
         },
       "TokenInfo":
         { "end_idx": "u128", "owner": "AccountId", "uri": "Vec<u8>" },
