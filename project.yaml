@@ -78,22 +78,22 @@ dataSources:
         - handler: handleSubCreate
           kind: substrate/EventHandler
           filter:
-            module: subModule
+            module: subNftModule
             method: SubCollectionCreated
         - handler: handleSubNFTMint
           kind: substrate/EventHandler
           filter:
-            module: subModule
+            module: subNftModule
             method: SubNonFungibleTokenMinted
         - handler: handleSubFTMint
           kind: substrate/EventHandler
           filter:
-            module: subModule
+            module: subNftModule
             method: SubFungibleTokenMinted
         - handler: handleSubRecover
           kind: substrate/EventHandler
           filter:
-            module: subModule
+            module: subNftModule
             method: TokenRecovered
         - handler: handleSellNFT
           kind: substrate/EventHandler
