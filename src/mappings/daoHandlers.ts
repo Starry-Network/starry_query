@@ -108,13 +108,13 @@ export async function handleProposalSponsored(event: SubstrateEvent): Promise<vo
 
 
 export async function handleProposalVoted(event: SubstrateEvent): Promise<void> {
-    const { event: { data: [proposal_id, member_shares, yes] } } = event;
-    const { extrinsic: { method: { args: [dao_account, proposal_index] } } } = event.extrinsic;
+    const { event: { data: [proposal_id, member_shares] } } = event;
+    const { extrinsic: { method: { args: [dao_account, proposal_index, isYes] } } } = event.extrinsic;
 
     const proposalId = `${dao_account.toString()}-${proposal_id.toString()}`;
     const proposalRecord = await Proposal.get(proposalId);
-
-    if (Boolean(yes)) {
+    // Bool()
+    if (isYes) {
         proposalRecord.yesVotes = proposalRecord.yesVotes + BigInt(member_shares);
     } else {
         proposalRecord.noVotes = proposalRecord.noVotes + BigInt(member_shares);
@@ -125,7 +125,7 @@ export async function handleProposalVoted(event: SubstrateEvent): Promise<void> 
     voteRecord.proposalId = proposalId;
     voteRecord.date = event.block.timestamp;
     voteRecord.shares = BigInt(member_shares);
-    voteRecord.yes = Boolean(yes);
+    voteRecord.yes = Boolean(isYes);
 
     await proposalRecord.save();
     await voteRecord.save();
