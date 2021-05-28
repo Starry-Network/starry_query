@@ -151,6 +151,7 @@ export async function handleProposalProcessed(event: SubstrateEvent): Promise<vo
     const proposalRecord = await Proposal.get(proposalId);
 
     proposalRecord.processed = Boolean(did_pass);
+    proposalRecord.didPass = Boolean(did_pass);
 
     if (!proposalRecord.processed && proposalRecord.tributeNftId) {
         const nft = proposalRecord.tributeNftId.split("-");
