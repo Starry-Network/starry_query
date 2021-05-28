@@ -66,42 +66,16 @@ export async function handleNFTBurned(event: SubstrateEvent): Promise<void> {
     const { event: { data: [burner, collection_id] } } = event;
     const { extrinsic: { method: { args: [, start_idx, amount] } } } = event.extrinsic;
 
-    const oldNftId = `${collection_id.toString()}-${start_idx.toString()}`;
-    const nftRecord = await Nft.get(oldNftId);
-    const burned_end_idx = BigInt(start_idx) + BigInt(amount) - BigInt(1);
-
     const burnerId = `${collection_id.toString()}-${burner.toString()}`;
     await ensureAddressBalance(burnerId);
 
     const burnerBalanceRecord = await AddressCollectionBalance.get(burnerId);
     burnerBalanceRecord.balance = burnerBalanceRecord.balance - BigInt(amount);
 
-    const collectionRecord = await Collection.get(collection_id.toString());
-    collectionRecord.totalSupply = collectionRecord.totalSupply - BigInt(amount);
-
     await burnerBalanceRecord.save();
-    await collectionRecord.save();
 
-    if (burned_end_idx !== nftRecord.endIdx) {
-        const newNftStartIdx = burned_end_idx + BigInt(1);
-        const newNftId = `${collection_id.toString()}-${newNftStartIdx.toString()}`
-
-        const newNft = await Nft.get(newNftId);
-        if (!newNft) {
-            let record = new Nft(newNftId);
-
-            record.endIdx = nftRecord.endIdx;
-            record.owner = nftRecord.owner;
-            record.uri = nftRecord.uri;
-            record.isSub = nftRecord.isSub;
-
-            // because linked NFT and brned NFT all is first NFT, so don't add isRoot
-
-            await record.save();
-        }
-    }
-
-    await Nft.remove(oldNftId);
+    const burnReceiver = "0x"
+    await NFTTransferred(burnReceiver, collection_id, start_idx, amount);
 }
 
 export async function handleFTBurned(event: SubstrateEvent): Promise<void> {

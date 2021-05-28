@@ -12,7 +12,7 @@ network:
           "owner": "AccountId",
           "uri": "Vec<u8>",
           "total_supply": "u128",
-          "token_type": "Option<TokenType>"
+          "token_type": "Option<TokenType>",
         },
       "TokenInfo":
         { "end_idx": "u128", "owner": "AccountId", "uri": "Vec<u8>" },
@@ -39,6 +39,12 @@ dataSources:
     startBlock: 0
     mapping:
       handlers:
+        - handler: handleCollectionCreated
+          kind: substrate/CallHandler
+          filter:
+            module: collectionModule
+            method: createCollection
+            success: true
         - handler: handleNFTMint
           kind: substrate/EventHandler
           filter:
