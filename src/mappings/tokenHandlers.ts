@@ -20,10 +20,10 @@ export async function handleCollectionCreated(extrinsic: SubstrateExtrinsic): Pr
     await record.save();
 }
 
-export async function handleNFTMint(extrinsic: SubstrateExtrinsic): Promise<void> {
-    const mintEvent = extrinsic.events.find(e => e.event.section === 'nftModule' && e.event.method === 'NonFungibleTokenMinted');
-    const { event: { data: [, start_idx, end_idx] } } = mintEvent;
-    const { extrinsic: { method: { args: [receiver, collection_id, uri, amount] } } } = extrinsic;
+export async function handleNFTMint(event: SubstrateEvent): Promise<void> {
+    // const mintEvent = extrinsic.events.find(e => e.event.section === 'nftModule' && e.event.method === 'NonFungibleTokenMinted');
+    const { event: { data: [, start_idx, end_idx] } } = event;
+    const { extrinsic: { method: { args: [receiver, collection_id, uri, amount] } } } = event.extrinsic;
 
     await NFTMint(start_idx, end_idx, receiver, collection_id, uri, amount);
 }

@@ -39,27 +39,11 @@ dataSources:
     startBlock: 0
     mapping:
       handlers:
-        - handler: handleBlock
-          kind: substrate/BlockHandler
-        - handler: handleEvent
+        - handler: handleNFTMint
           kind: substrate/EventHandler
           filter:
-            module: balances
-            method: Deposit
-        - handler: handleCall
-          kind: substrate/CallHandler
-        - handler: handleCollectionCreated
-          kind: substrate/CallHandler
-          filter:
-            module: collectionModule
-            method: createCollection
-            success: true
-        - handler: handleNFTMint
-          kind: substrate/CallHandler
-          filter:
             module: nftModule
-            method: mintNonFungible
-            success: true
+            method: NonFungibleTokenMinted
         - handler: handleFTMint
           kind: substrate/EventHandler
           filter:
