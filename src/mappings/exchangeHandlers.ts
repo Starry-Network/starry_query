@@ -4,14 +4,14 @@ import { Pool } from '../types/models/Pool';
 import { NFTTransferred, NFTMint, FTMint } from '../utils/token';
 
 export async function handleSellNFT(event: SubstrateEvent): Promise<void> {
-    const { event: { data: [order_id] } } = event;
+    const { event: { data: [seller, order_id] } } = event;
     const { extrinsic: { method: { args: [collection_id, token_id, amount, price] } } } = event.extrinsic;
 
     const orderRecord = new Order(order_id.toString());
     orderRecord.nftId = `${collection_id.toString()}-${token_id.toString()}`
     orderRecord.price = BigInt(price);
     orderRecord.amount = BigInt(amount);
-    orderRecord.seller = event.extrinsic.extrinsic.signer.toString();
+    orderRecord.seller = seller.toString();
 
     // exchange_pallet: 5EYCAe5a7x69hFY9TwczDWDhJMHXGirtzHzfYnnmc3WmBTFZ
 
@@ -20,7 +20,7 @@ export async function handleSellNFT(event: SubstrateEvent): Promise<void> {
 }
 
 export async function handleBuyNFT(event: SubstrateEvent): Promise<void> {
-    const { event: { data: [left_amount] } } = event;
+    const { event: { data: [buyer, left_amount] } } = event;
     const { extrinsic: { method: { args: [order_id, amount] } } } = event.extrinsic;
 
     if (BigInt(left_amount) === BigInt(0)) {
@@ -28,7 +28,7 @@ export async function handleBuyNFT(event: SubstrateEvent): Promise<void> {
     } else {
         const orderRecord = await Order.get(order_id.toString());
         const token = orderRecord.nftId.split("-");
-        await NFTTransferred(event.extrinsic.extrinsic.signer.toString(), token[0], token[1], amount);
+        await NFTTransferred(buyer.toString(), token[0], token[1], amount);
         const startIdx = BigInt(token[1]) + BigInt(amount);
         const newNodeId = `${token[0]}-${startIdx.toString()}`;
         orderRecord.amount = BigInt(left_amount);
@@ -39,13 +39,13 @@ export async function handleBuyNFT(event: SubstrateEvent): Promise<void> {
 }
 
 export async function handleCancelNFTOrder(event: SubstrateEvent): Promise<void> {
-    const { event: { data: [order_id] } } = event;
+    const { event: { data: [seller, order_id] } } = event;
     const orderRecord = await Order.get(order_id.toString());
     const token = orderRecord.nftId.split("-");
     const collection_id = token[0];
     const token_id = token[1];
     const amount = orderRecord.amount;
-    await NFTTransferred(event.extrinsic.extrinsic.signer.toString(), collection_id, token_id, amount);
+    await NFTTransferred(seller.toString(), collection_id, token_id, amount);
     await Order.remove(order_id.toString());
 }
 
